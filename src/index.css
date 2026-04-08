@@ -1,0 +1,53 @@
+:root {
+  --ink: #101522;
+  --sky: #9fdcff;
+  --pink: #f6b1cb;
+  --paper: #fff9f1;
+  font-family:
+    'Avenir Next Condensed',
+    'Hiragino Sans',
+    'Yu Gothic',
+    'Arial Narrow',
+    sans-serif;
+  line-height: 1.5;
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--paper);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+label:has(input:focus-visible) {
+  outline: 3px solid rgba(255, 79, 136, 0.42);
+  outline-offset: 3px;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
