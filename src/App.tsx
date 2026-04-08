@@ -30,6 +30,14 @@ type ProcessorPositionMessage = {
   speed: number
 }
 
+const PUBLIC_BASE_URL = import.meta.env.BASE_URL
+
+function publicAssetUrl(path: string) {
+  return `${PUBLIC_BASE_URL}${path.replace(/^\//, '')}`
+}
+
+const AUDIO_FILE_ACCEPT = '.mp3,.wav,.m4a,.aac,.aif,.aiff,.flac,.caf,.mp4,.ogg,.opus,audio/*'
+
 const scratchModes: ScratchMode[] = [
   '---', '>', '>>', '<', '<<',
   'FWD', 'FSTP', 'BWD', 'BSTP',
@@ -204,7 +212,9 @@ function App() {
   const [steps, setSteps] = useState(defaultSteps)
 
   const selectedStep = steps[selectedStepIndex]
-  const topImage = theme === 'light' ? '/media/top1.jpeg' : '/media/top2.jpeg'
+  const topImage = theme === 'light'
+    ? publicAssetUrl('media/top1.jpeg')
+    : publicAssetUrl('media/top2.jpeg')
 
   useEffect(() => {
     volumeRef.current = volume
@@ -413,7 +423,7 @@ function App() {
         latencyHint: 'interactive',
       })
 
-      await context.audioWorklet.addModule('/scratch-processor.js')
+      await context.audioWorklet.addModule(publicAssetUrl('scratch-processor.js'))
 
       const processor = new AudioWorkletNode(context, 'scratch-worklet', {
         numberOfInputs: 0,
@@ -458,7 +468,12 @@ function App() {
       gainNodeRef.current = gainNode
     })()
 
-    await enginePromiseRef.current
+    try {
+      await enginePromiseRef.current
+    } catch (error) {
+      enginePromiseRef.current = null
+      throw error
+    }
   }
 
   async function resumeEngine() {
@@ -626,9 +641,13 @@ function App() {
       setIsPlaying(false)
       setIsSequencerRunning(false)
       setStatus(`Loaded ${file.name}`)
-    } catch {
+    } catch (error) {
       sampleLoadedRef.current = false
-      setStatus('Failed to decode that audio file')
+      if (error instanceof Error) {
+        setStatus(`Audio load failed: ${error.message}`)
+      } else {
+        setStatus('Audio load failed')
+      }
     }
   }
 
@@ -716,7 +735,7 @@ function App() {
 
           <div className="masthead__controls">
             <label className="pill-upload">
-              <input type="file" accept="audio/*" onChange={handleFileChange} />
+              <input type="file" accept={AUDIO_FILE_ACCEPT} onChange={handleFileChange} />
               <span>Load Sample</span>
             </label>
             <button
